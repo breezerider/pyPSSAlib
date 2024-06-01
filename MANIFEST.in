@@ -1,0 +1,18 @@
+graft docs
+graft src
+graft tests
+prune ci
+
+include .readthedocs.yml
+include pyproject.toml
+include pytest.ini
+include tox.ini
+include CMakeLists.txt
+
+include AUTHORS.rst
+include CHANGELOG.rst
+include CONTRIBUTING.rst
+include LICENSE
+include README.rst
+
+global-exclude *.py[cod] __pycache__/* *.so *.dylib
