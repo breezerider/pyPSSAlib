@@ -49,6 +49,11 @@ class CMakeBuild(build_ext):
         # Can be set with Conda-Build, for example.
         cmake_generator = os.environ.get("CMAKE_GENERATOR", "")
 
+        # get pybind11 cmake dir
+        import pybind11
+
+        pybind11_cmake_dir = os.path.join(os.path.dirname(pybind11.__file__), 'share', 'cmake', 'pybind11')
+
         # Set output directory and config for the build, pyPSSAlib version
         # and pass the ABI suffix for SO library
         cmake_args = [
@@ -56,6 +61,7 @@ class CMakeBuild(build_ext):
             f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}{os.sep}",
             f"-DPYTHON_SOABI={sysconfig.get_config_var('SOABI')}",
             f"-DCMAKE_BUILD_TYPE={cfg}",  # not used on MSVC, but no harm
+            f"-Dpybind11_DIR={pybind11_cmake_dir}",
         ]
         build_args = []
         # Adding CMake arguments set as environment variable

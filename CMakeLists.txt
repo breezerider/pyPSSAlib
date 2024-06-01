@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14.0)
+cmake_minimum_required(VERSION 3.15)
 project(pypssalib VERSION ${PYPSSALIB_VERSION} LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 11)
@@ -12,16 +12,16 @@ include(ExternalProject)
 #set(Boost_NO_BOOST_CMAKE    ON)
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
-find_package(pybind11 REQUIRED)
+find_package(pybind11 REQUIRED CONFIG)
 find_package(GSL REQUIRED)
-#find_package(Boost 1.56 REQUIRED)
+find_package(Boost 1.56 REQUIRED)
 
 ExternalProject_add(
     pssalib
     BUILD_BYPRODUCTS ${CMAKE_CURRENT_SOURCE_DIR}/externals/${CMAKE_INSTALL_LIBDIR}/libpssa${CMAKE_STATIC_LIBRARY_SUFFIX}
     INSTALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/externals"
     GIT_REPOSITORY https://github.com/breezerider/pSSAlib.git
-    GIT_TAG v2.0.2
+    GIT_TAG v2.0.1
     PREFIX pssalib
     CONFIGURE_COMMAND libtoolize && aclocal && automake --add-missing && autoreconf --force && ./configure --prefix=${CMAKE_CURRENT_SOURCE_DIR}/externals --libdir=${CMAKE_CURRENT_SOURCE_DIR}/externals/${CMAKE_INSTALL_LIBDIR} --enable-static --disable-shared --with-pic --without-libsbml --disable-cli --disable-optimisation
     BUILD_COMMAND make -j
@@ -44,6 +44,7 @@ set_target_properties(pypssalib PROPERTIES
 target_compile_definitions(pypssalib PRIVATE PYPSSALIB_VERSION=${PYPSSALIB_VERSION})
 target_include_directories(pypssalib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/externals/include)
 target_include_directories(pypssalib PRIVATE ${Python3_INCLUDE_DIRS})
+target_include_directories(pypssalib PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(pypssalib pybind11::module)
 target_link_libraries(pypssalib libpssa)
 target_link_libraries(pypssalib Python3::Module)
