@@ -8,9 +8,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 include(GNUInstallDirs)
 include(ExternalProject)
 
-#set(Boost_DEBUG ON)
-#set(Boost_NO_BOOST_CMAKE    ON)
-
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 find_package(pybind11 REQUIRED CONFIG)
 find_package(GSL REQUIRED)
@@ -23,7 +20,9 @@ ExternalProject_add(
     GIT_REPOSITORY https://github.com/breezerider/pSSAlib.git
     GIT_TAG v2.0.1
     PREFIX pssalib
-    CONFIGURE_COMMAND libtoolize && aclocal && automake --add-missing && autoreconf --force && ./configure --prefix=${CMAKE_CURRENT_SOURCE_DIR}/externals --libdir=${CMAKE_CURRENT_SOURCE_DIR}/externals/${CMAKE_INSTALL_LIBDIR} --enable-static --disable-shared --with-pic --without-libsbml --disable-cli --disable-optimisation
+    CONFIGURE_COMMAND autoreconf -fvi && ./configure --prefix=${CMAKE_CURRENT_SOURCE_DIR}/externals
+                      --libdir=${CMAKE_CURRENT_SOURCE_DIR}/externals/${CMAKE_INSTALL_LIBDIR}
+                      --enable-static --disable-shared --with-pic --without-libsbml --disable-cli --disable-optimisation
     BUILD_COMMAND make -j
     INSTALL_COMMAND make install
     BUILD_IN_SOURCE ON
