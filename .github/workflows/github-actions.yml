@@ -35,6 +35,14 @@ jobs:
           #   cibw_arch: 'AMD64'
           #   cibw_build: false
           #   os: 'windows-latest'
+          - name: 'py38 (macos/x86_64)'
+            python: '3.8'
+            toxpython: 'python3.8'
+            python_arch: 'x64'
+            tox_env: 'py38'
+            cibw_arch: 'x86_64'
+            cibw_build: 'cp38-*'
+            os: 'macos-13'
           - name: 'py38 (macos/arm64)'
             python: '3.8'
             toxpython: 'python3.8'
@@ -42,7 +50,7 @@ jobs:
             tox_env: 'py38'
             cibw_arch: 'arm64'
             cibw_build: 'cp38-*'
-            os: 'macos-latest'
+            os: 'macos-14'
           - name: 'py39 (ubuntu/x86_64)'
             python: '3.9'
             toxpython: 'python3.9'
@@ -59,6 +67,14 @@ jobs:
           #   cibw_arch: 'AMD64'
           #   cibw_build: false
           #   os: 'windows-latest'
+          - name: 'py39 (macos/x86_64)'
+            python: '3.9'
+            toxpython: 'python3.9'
+            python_arch: 'x64'
+            tox_env: 'py39'
+            cibw_arch: 'x86_64'
+            cibw_build: 'cp39-*'
+            os: 'macos-13'
           - name: 'py39 (macos/arm64)'
             python: '3.9'
             toxpython: 'python3.9'
@@ -66,7 +82,7 @@ jobs:
             tox_env: 'py39'
             cibw_arch: 'arm64'
             cibw_build: 'cp39-*'
-            os: 'macos-latest'
+            os: 'macos-14'
           - name: 'py310 (ubuntu/x86_64)'
             python: '3.10'
             toxpython: 'python3.10'
@@ -83,6 +99,14 @@ jobs:
           #   cibw_arch: 'AMD64'
           #   cibw_build: false
           #   os: 'windows-latest'
+          - name: 'py310 (macos/x86_64)'
+            python: '3.10'
+            toxpython: 'python3.10'
+            python_arch: 'x64'
+            tox_env: 'py310'
+            cibw_arch: 'x86_64'
+            cibw_build: 'cp310-*'
+            os: 'macos-13'
           - name: 'py310 (macos/arm64)'
             python: '3.10'
             toxpython: 'python3.10'
@@ -90,7 +114,7 @@ jobs:
             tox_env: 'py310'
             cibw_arch: 'arm64'
             cibw_build: 'cp310-*'
-            os: 'macos-latest'
+            os: 'macos-14'
           - name: 'py311 (ubuntu/x86_64)'
             python: '3.11'
             toxpython: 'python3.11'
@@ -107,6 +131,14 @@ jobs:
           #   cibw_arch: 'AMD64'
           #   cibw_build: false
           #   os: 'windows-latest'
+          - name: 'py311 (macos/x86_64)'
+            python: '3.11'
+            toxpython: 'python3.10'
+            python_arch: 'x64'
+            tox_env: 'py311'
+            cibw_arch: 'x86_64'
+            cibw_build: 'cp311-*'
+            os: 'macos-13'
           - name: 'py311 (macos/arm64)'
             python: '3.11'
             toxpython: 'python3.11'
@@ -114,7 +146,7 @@ jobs:
             tox_env: 'py311'
             cibw_arch: 'arm64'
             cibw_build: 'cp311-*'
-            os: 'macos-latest'
+            os: 'macos-14'
     steps:
     - uses: actions/checkout@v4
       with:
@@ -127,7 +159,7 @@ jobs:
       if: >
         !matrix.cibw_build
       with:
-        macos: ci/${{ matrix.os }}.sh
+        macos: ci/${{ matrix.os }}-brew.sh
         linux: ci/${{ matrix.os }}.sh
         windows: .\ci\${{ matrix.os }}.ps1
     - name: install dependencies
@@ -144,13 +176,13 @@ jobs:
         TOXPYTHON: '${{ matrix.toxpython }}'
         CIBW_ARCHS: '${{ matrix.cibw_arch }}'
         CIBW_BUILD: '${{ matrix.cibw_build }}'
-        CIBW_ARCHS_MACOS: "arm64"
+        CIBW_ARCHS_MACOS: "${{ matrix.cibw_arch }}"
         CIBW_BUILD_VERBOSITY: '3'
         CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
         CIBW_BEFORE_ALL_LINUX: >
           ci/manylinux.sh
         CIBW_BEFORE_ALL_MACOS: >
-          ci/${{ matrix.os }}.sh
+          ci/${{ matrix.os }}-build.sh
         CIBW_TEST_REQUIRES: >
           tox
           tox-direct
@@ -176,7 +208,7 @@ jobs:
       with:
         name: '${{ matrix.tox_env }}_${{ matrix.os }}_${{ matrix.cibw_arch }}'
         path: wheelhouse/*.whl
-        overwrite: true
+        overwrite: false
 
   build_sdist:
     name: Build source distribution
@@ -191,5 +223,5 @@ jobs:
           pipx run build --sdist
       - uses: actions/upload-artifact@v4
         with:
-          name: 'source tarball'
+          name: 'source'
           path: dist/*.tar.gz
