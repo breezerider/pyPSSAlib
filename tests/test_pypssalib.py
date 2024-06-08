@@ -1,3 +1,5 @@
+import numpy as np
+
 import pypssalib as m
 
 
@@ -5,112 +7,77 @@ def test_version():
     assert m.__version__ == "0.0.0"
 
 
-def test_run_testcase(monkeypatch):
-    monkeypatch.setenv("GSL_RNG_SEED", "01062024")
-    expected = [
-        14,
-        8,
-        7,
-        6,
-        11,
-        9,
-        9,
-        11,
-        10,
-        9,
-        15,
-        13,
-        7,
-        9,
-        12,
-        11,
-        13,
-        10,
-        11,
-        16,
-        13,
-        11,
-        9,
-        12,
-        12,
-        14,
-        12,
-        10,
-        17,
-        15,
-        8,
-        13,
-        11,
-        12,
-        14,
-        14,
-        8,
-        10,
-        11,
-        8,
-        10,
-        12,
-        10,
-        10,
-        7,
-        12,
-        13,
-        10,
-        12,
-        14,
-        12,
-        10,
-        14,
-        11,
-        10,
-        12,
-        10,
-        17,
-        9,
-        4,
-        8,
-        8,
-        16,
-        15,
-        15,
-        12,
-        15,
-        10,
-        12,
-        20,
-        11,
-        15,
-        10,
-        5,
-        8,
-        8,
-        6,
-        5,
-        9,
-        10,
-        8,
-        8,
-        12,
-        6,
-        5,
-        11,
-        12,
-        9,
-        8,
-        11,
-        9,
-        4,
-        7,
-        4,
-        10,
-        9,
-        11,
-        8,
-        10,
-        14,
-        12,
-    ]
+def test_method():
+    pssa = m.pSSAlib(m.SSA.SPDM)
+    assert pssa.method == m.SSA.SPDM
 
-    pssa = m.pSSAlib()
-    actual = pssa.run_testcase(m.Testcase.sbd, [1, 1, 10, 0], 2000, 2100.0, 1)
+    pssa.method = m.SSA.PDM
+    assert pssa.method == m.SSA.PDM
+
+
+def test_run_sbd_pdm(monkeypatch):
+    monkeypatch.setenv("GSL_RNG_SEED", "01062024")
+    expected = np.loadtxt("tests/sbd_pdm.dat", dtype=int)
+
+    pssa = m.pSSAlib(m.SSA.PDM)
+    actual = pssa.sample_testcase_trajectory(
+        m.Testcase.SingleBirthDeath, [1, 1, 10, 0], 2100, time_start=2000, time_step=1
+    )
+    actual = actual.squeeze()
+    assert (expected == actual).all()
+
+
+def test_run_ca_spdm(monkeypatch):
+    monkeypatch.setenv("GSL_RNG_SEED", "01062024")
+    expected = np.loadtxt("tests/ca_spdm.dat", dtype=int)
+
+    pssa = m.pSSAlib(m.SSA.SPDM)
+    actual = pssa.sample_testcase_trajectory(
+        m.Testcase.ColloidalAggregation, [2, 2.1, 0.1, 1.0, 0.01, 0.1, 15, 0, 0], 3100, time_start=3000, time_step=1
+    )
+    actual = actual.squeeze()
+    assert (expected == actual).all()
+
+
+def test_run_clc_pssacr(monkeypatch):
+    monkeypatch.setenv("GSL_RNG_SEED", "01062024")
+    expected = []
+    for i in range(10):
+        expected.append(np.loadtxt(f"tests/clc_pssacr_{i}.dat", dtype=int))
+    expected = np.stack(expected)
+
+    system_size = 50
+    reaction_rates = np.repeat(1, 50)
+    omega = 1
+    initial_pops = np.repeat(1, 50)
+
+    pssa = m.pSSAlib(m.SSA.PSSACR)
+    actual = pssa.sample_testcase_trajectory(
+        m.Testcase.CyclicLinearChain,
+        [system_size, *reaction_rates, omega, *initial_pops],
+        1000,
+        time_start=990,
+        time_step=1,
+        samples=10,
+    )
+
+    # print(actual)
+    actual = actual.squeeze()
+    # print(actual)
+    # np.savetxt("/tmp/clc_pssacr.dat", actual, fmt='%d')
+    # assert 0 == 1
+    assert (expected == actual).all()
+
+
+def test_homoreaction_pdf(monkeypatch):
+    expected = np.loadtxt("tests/homoreaction_pdf.dat", dtype=float)
+
+    omega = 1.0
+    k1 = 0.016
+    k2 = 10.0
+
+    N = np.arange(0, 100, 1)
+    analytical_pdf = m.homoreaction_pdf(N, k1, k2, omega)
+
+    actual = np.stack((N, analytical_pdf), axis=1, dtype=float)
     assert (expected == actual).all()
