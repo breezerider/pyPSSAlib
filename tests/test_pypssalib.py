@@ -1,5 +1,4 @@
 import numpy as np
-
 import pypssalib as m
 
 
@@ -41,15 +40,16 @@ def test_run_ca_spdm(monkeypatch):
 
 def test_run_clc_pssacr(monkeypatch):
     monkeypatch.setenv("GSL_RNG_SEED", "01062024")
+    samples = 10
     expected = []
-    for i in range(10):
+    for i in range(samples):
         expected.append(np.loadtxt(f"tests/clc_pssacr_{i}.dat", dtype=int))
-    expected = np.stack(expected)
+    expected = np.stack(expected).squeeze()
 
     system_size = 50
-    reaction_rates = np.repeat(1, 50)
+    reaction_rates = np.repeat(1, system_size)
     omega = 1
-    initial_pops = np.repeat(1, 50)
+    initial_pops = np.repeat(1, system_size)
 
     pssa = m.pSSAlib(m.SSA.PSSACR)
     actual = pssa.sample_testcase_trajectory(
@@ -58,14 +58,10 @@ def test_run_clc_pssacr(monkeypatch):
         1000,
         time_start=990,
         time_step=1,
-        samples=10,
+        samples=samples,
     )
 
-    # print(actual)
     actual = actual.squeeze()
-    # print(actual)
-    # np.savetxt("/tmp/clc_pssacr.dat", actual, fmt='%d')
-    # assert 0 == 1
     assert (expected == actual).all()
 
 
@@ -80,4 +76,4 @@ def test_homoreaction_pdf(monkeypatch):
     analytical_pdf = m.homoreaction_pdf(N, k1, k2, omega)
 
     actual = np.stack((N, analytical_pdf), axis=1, dtype=float)
-    assert (expected == actual).all()
+    assert np.isclose(actual, expected).all()

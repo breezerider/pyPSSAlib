@@ -2,7 +2,6 @@
 
 import numpy as np
 import scipy as sp
-
 from pypssalib import SSA
 from pypssalib import Testcase
 from pypssalib import homoreaction_pdf
