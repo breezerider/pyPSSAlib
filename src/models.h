@@ -3,6 +3,10 @@
 #include <pssalib/datamodel/detail/Reaction.h>
 #include <pssalib/datamodel/detail/SpeciesReference.h>
 
+#include <gsl/gsl_sf_bessel.h>  // Bessel functions
+#include <gsl/gsl_sf_gamma.h>   // Factorial
+#include <gsl/gsl_sf_pow_int.h> // Small integer powers
+
 #include "utils.h"
 
 #ifndef PSSA_MODELS_H_
@@ -338,7 +342,7 @@ generateHomoreaction(
   reaction->setReversible(false);
 
   // rate constant
-  reaction->setForwardRate(pdParams[0]);
+  reaction->setForwardRate(pdParams[1]);
 
   // species refs
   reaction->allocSpeciesRefs(1, 1);
@@ -358,7 +362,7 @@ generateHomoreaction(
   reaction->setReversible(false);
 
   // rate constant
-  reaction->setForwardRate(pdParams[1]);
+  reaction->setForwardRate(pdParams[0]);
 
   // species refs
   reaction->allocSpeciesRefs(1, 1);
@@ -757,6 +761,19 @@ generateEnzymaticDegradation(
   // product
   spRef = reaction->getProductsListAt(0);
   spRef->makeReservoir();
+}
+
+void computeHomoreactionPDF(unsigned int *arN, size_t szN, double k1, double k2,
+                            double omega, double *arR) {
+  const double sqrtK = sqrt(k2 / k1 * omega * omega);
+
+  for (size_t idx = 0; idx < szN; idx++) {
+    unsigned int n = arN[idx];
+    arR[idx] =
+        (gsl_pow_uint(sqrtK, n) *
+         gsl_sf_bessel_In(static_cast<int>(n) - 1, 2.0 * sqrtK)) /
+        (M_SQRT2 * gsl_sf_bessel_I1(2.0 * M_SQRT2 * sqrtK) * gsl_sf_fact(n));
+  }
 }
 
 #endif /* PSSA_MODELS_H_ */
