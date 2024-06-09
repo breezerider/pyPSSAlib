@@ -4,10 +4,10 @@ Usage
 
 A smsmaple usage illustrating how to simulate a trajectory for a single birth-death process::
 
-   import pypssalib
+   import pypssalib as m
 
-   pssa = pypssalib.pSSAlib()
-   pssa.run_testcase(m.Testcase.sbd, [1, 1, 10, 0], 2000, 2100.0, 1)
+   pssa = m.pSSAlib(m.SSA.SPDM)
+   pssa.sample_testcase_trajectory(m.Testcase.sbd, [1, 1, 10, 0], 2100, time_start=2000.0, time_step=1)
 
 Another example that computes the Kullback-Liebler divergence to quantify similarity between empirical and analytical PDFs for the Homoreaction test case [1]_:
 
