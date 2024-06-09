@@ -3,7 +3,7 @@ import pypssalib as m
 
 
 def test_version():
-    assert m.__version__ == "0.0.0"
+    assert m.__version__ == "0.1.0-dev0"
 
 
 def test_method():

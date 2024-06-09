@@ -2,8 +2,8 @@
 Changelog
 =========
 
-Unreleased
-----------
+0.1.0-dev0 (2024-06-09)
+-----------------------
 
 * Python bindings for pSSAlib in pSSAlib class
 * Set simulation algorithm (one of DirectMethod, PartialPropensityDirectMethod, SortingPartialPropensityDirectMethod, CompositionRejectionSampling) via method property
