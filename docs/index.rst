@@ -7,6 +7,7 @@ Contents
 
    readme
    usage
+   reference
    contributing
    authors
    changelog

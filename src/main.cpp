@@ -333,8 +333,8 @@ PYBIND11_MODULE(pypssalib, m) {
       .value("CompositionRejectionSampling", pssalib::PSSA::M_PSSACR);
 
   py::class_<pSSAlibWrapper>(m, "pSSAlib", py::buffer_protocol(), R"pbdoc(
-      Python bindings for pSSAlib
-      ---------------------------
+      Interface to pSSAlib simulation engine
+      --------------------------------------
 
       .. currentclass:: pSSAlib
 
@@ -349,7 +349,10 @@ PYBIND11_MODULE(pypssalib, m) {
       .def(py::init<const pssalib::PSSA::EMethod>())
       .def("__str__", &pSSAlibWrapper::str)
       .def("__repr__", &pSSAlibWrapper::repr)
-      .def_readwrite("method", &pSSAlibWrapper::method)
+      .def_readwrite("method", &pSSAlibWrapper::method, R"pbdoc(
+        SSA used by the simulation backend.
+
+    )pbdoc")
       .def("sample_testcase_trajectory", &pSSAlibWrapper::sample_trajectories,
            R"pbdoc(
         Generate simulated trajectories of a given test case
