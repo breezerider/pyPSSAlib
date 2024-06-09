@@ -69,7 +69,7 @@ Installation
 
 Get latest released version from `Test PyPI <https://test.pypi.org/>`_::
 
-    pip install -i https://test.pypi.org/simple/ pypssalib
+    pip install --extra-index-url https://test.pypi.org/simple/ pypssalib
 
 You can also install the in-development version with::
 
@@ -96,6 +96,9 @@ Development
 To run all the tests issue this command in a terminal::
 
     tox
+
+References
+==========
 
 .. [1] Gillespie DT. Exact stochastic simulation of coupled chemical reactions. The Journal of Physical Chemistry. 1977;81(25):2340–2361. doi: `10.1021/j100540a008 <https://doi.org/10.1021/j100540a008>`_
 .. [2] Ramaswamy R, Gonzalez-Segredo N, Sbalzarini IF. A new class of highly efficient exact stochastic simulation algorithms for chemical reaction networks. J Chem Phys. 2009;130(24):244104 doi: `10.1063/1.3154624 <https://doi.org/10.1063/1.3154624>`_
