@@ -14,4 +14,7 @@ Another example that computes the Kullback-Liebler divergence to quantify simila
 .. literalinclude:: ../examples/validation.py
    :lines: 2-
 
+References
+==========
+
 .. [1] Erban R, Chapman SJ. Stochastic modelling of reaction—diffusion processes: algorithms for bimolecular reactions. Physical Biology. 2009;6(4):046001 doi: `10.1088/1478-3975/6/4/046001 <https://doi.org/10.1088/1478-3975/6/4/046001>`_
