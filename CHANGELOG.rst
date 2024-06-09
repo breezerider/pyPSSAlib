@@ -2,8 +2,8 @@
 Changelog
 =========
 
-Unreleased
-----------
+0.1.0-dev1 (2024-06-09)
+-----------------------
 
 * Update usage example
 * Fix deadlock in sampling methods when an atomic flag was not reset
