@@ -1,5 +1,6 @@
 import numpy as np
 import pypssalib as m
+import pytest
 
 
 def test_version():
@@ -12,6 +13,46 @@ def test_method():
 
     pssa.method = m.SSA.PDM
     assert pssa.method == m.SSA.PDM
+
+
+def test_run_invalid_testcase():
+    pssa = m.pSSAlib(m.SSA.SPDM)
+    with pytest.raises(RuntimeError) as excinfo:
+        pssa.sample_testcase_population(m.Testcase.none, [1, 1, 10, 0], 100.0, 1)
+    assert "Failed to intialize test case model" in str(excinfo.value)
+    pssa.sample_testcase_population(m.Testcase.SingleBirthDeath, [1, 1, 10, 0], 100.0, 1)
+
+
+def test_run_invalid_params():
+    pssa = m.pSSAlib(m.SSA.SPDM)
+    with pytest.raises(RuntimeError) as excinfo:
+        pssa.sample_testcase_population(m.Testcase.SingleBirthDeath, None, 100.0, 1)
+    assert "Parameters must a float vector" in str(excinfo.value)
+    pssa.sample_testcase_population(m.Testcase.SingleBirthDeath, [1, 1, 10, 0], 100.0, 1)
+
+
+def test_run_invalid_time():
+    pssa = m.pSSAlib(m.SSA.SPDM)
+    # time_start
+    with pytest.raises(RuntimeError) as excinfo:
+        pssa.sample_testcase_trajectory(m.Testcase.SingleBirthDeath, [1, 1, 10, 0], 100.0, time_start=100.0)
+    assert "Time interval must include at least one time point" in str(excinfo.value)
+    pssa.sample_testcase_trajectory(m.Testcase.SingleBirthDeath, [1, 1, 10, 0], 100.0, time_start=99.0, time_step=1)
+    # time_step
+    with pytest.raises(RuntimeError) as excinfo:
+        pssa.sample_testcase_trajectory(
+            m.Testcase.SingleBirthDeath, [1, 1, 10, 0], 100.0, time_start=99.0, time_step=0.0
+        )
+    assert "Time interval must include at least one time point" in str(excinfo.value)
+    pssa.sample_testcase_trajectory(m.Testcase.SingleBirthDeath, [1, 1, 10, 0], 100.0, time_start=99.0, time_step=1)
+
+
+def test_run_invalid_samples():
+    pssa = m.pSSAlib(m.SSA.SPDM)
+    with pytest.raises(RuntimeError) as excinfo:
+        pssa.sample_testcase_population(m.Testcase.SingleBirthDeath, [1, 1, 10, 0], 100.0, 0)
+    assert "Number of samples must be a positive integer" in str(excinfo.value)
+    pssa.sample_testcase_population(m.Testcase.SingleBirthDeath, [1, 1, 10, 0], 100.0, 1)
 
 
 def test_run_tcs_dm(monkeypatch):

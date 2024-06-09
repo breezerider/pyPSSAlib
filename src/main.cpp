@@ -110,96 +110,107 @@ protected:
       throw std::runtime_error("Another simualtion is running already");
     bProcessing = true;
 
-    if (samples < 1)
-      throw std::runtime_error("Number of samples must be a positive integer");
-
-    py::buffer_info buf_params = params.request();
-
-    if (buf_params.ndim != 1)
-      throw std::runtime_error("Parameters must a vector");
-
-    // input parameters vector
-    double *ptr_params = static_cast<double *>(buf_params.ptr);
-    size_t num_params = buf_params.size;
-
-    // intialize simulation info
-    pssalib::datamodel::SimulationInfo simInfo;
-
-    if (!initializeModel(simInfo.getModel(), testCase, ptr_params, num_params))
-      throw std::runtime_error("Failed to intialize test case model");
-
-    // setup the simulation params
-    simInfo.unSamplesTotal = samples;
-    simInfo.dTimeStart = timeStart;
-    simInfo.dTimeEnd = timeEnd;
-    simInfo.dTimeStep = timeStep;
-
-    // setup output
-    simInfo.unOutputFlags =
-        pssalib::datamodel::SimulationInfo::ofNone
-        // | pssalib::datamodel::SimulationInfo::ofTrajectory
-        // | pssalib::datamodel::SimulationInfo::ofStatus
-        | pssalib::datamodel::SimulationInfo::ofLog
-        // | pssalib::datamodel::SimulationInfo::ofTrace
-        // | pssalib::datamodel::SimulationInfo::ofInfo
-        // | pssalib::datamodel::SimulationInfo::ofWarning
-        | pssalib::datamodel::SimulationInfo::ofError
-        // | pssalib::datamodel::SimulationInfo::eofModuleGrouping
-        // | pssalib::datamodel::SimulationInfo::eofModuleSampling
-        // | pssalib::datamodel::SimulationInfo::eofModuleUpdate
-        ;
-
-    size_t numTimepoints;
-    if (timeStart < 0.0) {
-      simInfo.dTimeStart = timeEnd;
-      numTimepoints = 1;
-      simInfo.unOutputFlags |=
-          pssalib::datamodel::SimulationInfo::ofRawFinalPops;
-    } else {
-      numTimepoints =
-          pssalib::timing::getNumTimePoints(timeStart, timeEnd, timeStep);
-
-      if (numTimepoints <= 0)
+    try {
+      if (samples < 1)
         throw std::runtime_error(
-            "Time interval must include at least one time point");
+            "Number of samples must be a positive integer");
 
-      simInfo.unOutputFlags |=
-          pssalib::datamodel::SimulationInfo::ofRawTrajectory;
-    }
+      py::buffer_info buf_params = params.request();
 
-    simInfo.resetOutput();
+      if (buf_params.ndim != 1)
+        throw std::runtime_error("Parameters must a float vector");
 
-    simInfo.setOutputStreamBuf(pssalib::datamodel::SimulationInfo::ofLog,
-                               std::cerr.rdbuf());
+      size_t numTimepoints;
+      if (timeStart < 0.0)
+        numTimepoints = 1;
+      else {
+        numTimepoints =
+            pssalib::timing::getNumTimePoints(timeStart, timeEnd, timeStep);
 
-    // output array (# species x # time points)
-    size_t numSpecies = simInfo.getModel().getSpeciesCount();
-    auto result = py::array_t<unsigned int>(
-        {samples, numTimepoints, numSpecies}, // shape
-        {sizeof(unsigned int) * numTimepoints * numSpecies,
-         sizeof(unsigned int) * numSpecies, sizeof(unsigned int)} // strides
-    );
-    py::buffer_info buf_result = result.request();
-    simInfo.ptrarRawPopulations = static_cast<unsigned int *>(buf_result.ptr);
-
-    // run simulation
-    std::thread simThread(&pSSAlibWrapper::runSimulation, this, &simInfo);
-
-    while (bProcessing) {
-      std::this_thread::sleep_for(std::chrono::seconds(1));
-      if (PyErr_CheckSignals() == -1) {
-        PY_ERRMSG("simulation cancelled by keyboard interrupt")
-
-        simInfo.bInterruptRequested = true;
+        if (numTimepoints <= 0)
+          throw std::runtime_error(
+              "Time interval must include at least one time point");
       }
+
+      // input parameters vector
+      double *ptr_params = static_cast<double *>(buf_params.ptr);
+      size_t num_params = buf_params.size;
+
+      // intialize simulation info
+      pssalib::datamodel::SimulationInfo simInfo;
+
+      if (!initializeModel(simInfo.getModel(), testCase, ptr_params,
+                           num_params))
+        throw std::runtime_error("Failed to intialize test case model");
+
+      // setup the simulation params
+      simInfo.unSamplesTotal = samples;
+      simInfo.dTimeEnd = timeEnd;
+      simInfo.dTimeStep = timeStep;
+
+      if (timeStart < 0.0) {
+        simInfo.dTimeStart = timeEnd;
+        simInfo.unOutputFlags =
+            pssalib::datamodel::SimulationInfo::ofRawFinalPops;
+      } else {
+        simInfo.dTimeStart = timeStart;
+        simInfo.unOutputFlags =
+            pssalib::datamodel::SimulationInfo::ofRawTrajectory;
+      }
+
+      // setup output
+      simInfo.unOutputFlags |=
+          pssalib::datamodel::SimulationInfo::ofNone
+          // | pssalib::datamodel::SimulationInfo::ofTrajectory
+          // | pssalib::datamodel::SimulationInfo::ofStatus
+          | pssalib::datamodel::SimulationInfo::ofLog
+          // | pssalib::datamodel::SimulationInfo::ofTrace
+          // | pssalib::datamodel::SimulationInfo::ofInfo
+          // | pssalib::datamodel::SimulationInfo::ofWarning
+          | pssalib::datamodel::SimulationInfo::ofError
+          // | pssalib::datamodel::SimulationInfo::eofModuleGrouping
+          // | pssalib::datamodel::SimulationInfo::eofModuleSampling
+          // | pssalib::datamodel::SimulationInfo::eofModuleUpdate
+          ;
+
+      simInfo.resetOutput();
+
+      simInfo.setOutputStreamBuf(pssalib::datamodel::SimulationInfo::ofLog,
+                                 std::cerr.rdbuf());
+
+      // output array (# species x # time points)
+      size_t numSpecies = simInfo.getModel().getSpeciesCount();
+      auto result = py::array_t<unsigned int>(
+          {samples, numTimepoints, numSpecies}, // shape
+          {sizeof(unsigned int) * numTimepoints * numSpecies,
+           sizeof(unsigned int) * numSpecies, sizeof(unsigned int)} // strides
+      );
+      py::buffer_info buf_result = result.request();
+      simInfo.ptrarRawPopulations = static_cast<unsigned int *>(buf_result.ptr);
+
+      // run simulation
+      std::thread simThread(&pSSAlibWrapper::runSimulation, this, &simInfo);
+
+      while (bProcessing) {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        if (PyErr_CheckSignals() == -1) {
+          PY_ERRMSG("simulation cancelled by keyboard interrupt")
+
+          simInfo.bInterruptRequested = true;
+        }
+      }
+
+      simThread.join();
+
+      // done
+      bProcessing = false;
+
+      return result;
+
+    } catch (const std::exception &e) {
+      bProcessing = false;
+      throw;
     }
-
-    simThread.join();
-
-    // done
-    bProcessing = false;
-
-    return result;
   }
 
 public:
