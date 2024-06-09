@@ -52,9 +52,9 @@ Python bindings for `pSSAlib <https://github.com/breezerider/pSSAlib>`_.
 Installation
 ============
 
-Get latest released version from `PyPI <https://pypi.org/>`_::
+Get latest released version from `Test PyPI <https://test.pypi.org/>`_::
 
-    pip install pypssalib
+    pip install -i https://test.pypi.org/simple/ pypssalib
 
 You can also install the in-development version with::
 

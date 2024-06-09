@@ -1,7 +1,10 @@
 name: build
-on: [push, pull_request]
+on:
+  push:
+    tags:
+      - 'v*'
 jobs:
-  test:
+  test-n-build-wheel:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
@@ -210,18 +213,37 @@ jobs:
         path: wheelhouse/*.whl
         overwrite: false
 
-  build_sdist:
+  build-sdist:
     name: Build source distribution
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/setup-python@v5.1.0
+        with:
+          python-version: '3.11'
+          architecture: 'x64'
       - uses: actions/checkout@v4
         with:
             fetch-depth: 0
       - name: Build sdist
         run: |
-          python -mpip install --progress-bar=off pipx
-          pipx run build --sdist
+          python3 setup.py sdist
       - uses: actions/upload-artifact@v4
         with:
           name: 'source'
           path: dist/*.tar.gz
+
+  upload-pypi:
+    needs: [test-n-build-wheel, build-sdist]
+    runs-on: ubuntu-latest
+    environment: pypi
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+          path: dist
+
+      - uses: pypa/gh-action-pypi-publish@release/v1.8
+        with:
+          user: __token__
+          password: ${{ secrets.PIPY_TEST_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/
