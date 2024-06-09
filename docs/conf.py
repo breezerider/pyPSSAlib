@@ -16,18 +16,18 @@ extensions = [
 ]
 source_suffix = '.rst'
 master_doc = 'index'
-project = 'porkbun-api-client'
+project = 'pypssalib'
 year = '2024'
 author = 'Oleksandr Ostrenko'
 copyright = '{0}, {1}'.format(year, author)
-version = 'develop'
-# version = release = '0.1.0'
+# version = 'dev'
+version = release = '0.0.0'
 
 pygments_style = 'trac'
 templates_path = ['.']
 extlinks = {
-    'issue': ('https://github.com/breezerider/porkbun-api-client/issues/%s', '#'),
-    'pr': ('https://github.com/breezerider/porkbun-api-client/pull/%s', 'PR #'),
+    'issue': ('https://github.com/breezerider/pypssalib/issues/%s', '#'),
+    'pr': ('https://github.com/breezerider/pypssalib/pull/%s', 'PR #'),
 }
 # on_rtd is whether we are on readthedocs.org
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
@@ -49,3 +49,10 @@ napoleon_use_ivar = True  # For maths symbols
 napoleon_use_rtype = False  # Inline return type
 napoleon_use_param = False  # Single params role
 napoleon_use_keyword = False  # Single keywors role
+
+linkcheck_ignore = [
+    r'https://doi.org/',
+    r'https://test.pypi.org/project/pypssalib',
+    r'https://github.com/breezerider/pypssalib',
+    r'https://img.shields.io/badge/test.pypi',
+]

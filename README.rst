@@ -47,7 +47,22 @@ Overview
 
 .. end-badges
 
-Python bindings for `pSSAlib <https://github.com/breezerider/pSSAlib>`_.
+Python bindings for `pSSAlib <https://github.com/breezerider/pSSAlib>`_ supporting following stoachastic simulation algorithms (SSAs):
+
+* Gillespie’s direct method (DM) [1]_ as a reference;
+* partial-propensity direct method (PDM) [2]_;
+* sorting partial-propensity direct method (SPDM) [2]_;
+* partial-propensity SSA with Composition-Rejection Sampling (PSSA-CR) [3]_;
+
+Package provides an interface to sample individual trajectories as well as steady-stat populations. A number of build-in models are provided:
+
+* Cyclic Linear Chain (CLC) model [2]_
+* Colloidal Aggregation (CA) model [2]_
+* Homoreaction model [4]_
+* Single-Species Birth-Death (SBD) model
+* The bacterial Two-Component System [5]_
+* The Enzymatic Degradation process [6]_
+
 
 Installation
 ============
@@ -81,3 +96,10 @@ Development
 To run all the tests issue this command in a terminal::
 
     tox
+
+.. [1] Gillespie DT. Exact stochastic simulation of coupled chemical reactions. The Journal of Physical Chemistry. 1977;81(25):2340–2361. doi: `10.1021/j100540a008 <https://doi.org/10.1021/j100540a008>`_
+.. [2] Ramaswamy R, Gonzalez-Segredo N, Sbalzarini IF. A new class of highly efficient exact stochastic simulation algorithms for chemical reaction networks. J Chem Phys. 2009;130(24):244104 doi: `10.1063/1.3154624 <https://doi.org/10.1063/1.3154624>`_
+.. [3] Ramaswamy R, Sbalzarini IF. A partial-propensity variant of the composition-rejection stochastic simulation algorithm for chemical reaction networks. The Journal of Chemical Physics. 2010;132(4):044102 doi: `10.1063/1.3297948 <https://doi.org/10.1063/1.3297948>`_
+.. [4] Erban R, Chapman SJ. Stochastic modelling of reaction—diffusion processes: algorithms for bimolecular reactions. Physical Biology. 2009;6(4):046001 doi: `10.1088/1478-3975/6/4/046001 <https://doi.org/10.1088/1478-3975/6/4/046001>`_
+.. [5] Kim, J.-R. & Cho, K.-H. The multi-step phosphorelay mechanism of unorthodox two-component systems in e. coli realizes ultrasensitivity to stimuli while maintaining robustness to noises. Comput. Biol. Chem. 2006, doi: `10.1016/j.compbiolchem.2006.09.004 <https://doi.org/10.1016/j.compbiolchem.2006.09.004>`_
+.. [6] Fröhlich, F. et al. Inference for stochastic chemical kinetics using moment equations and system size expansion. PLOS Comput. Biol. 2016, doi: `10.1371/journal.pcbi.1005030 <https://doi.org/10.1371/journal.pcbi.1005030>`_
