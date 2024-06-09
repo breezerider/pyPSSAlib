@@ -14,7 +14,7 @@ A0 = 25
 samples = 10000
 
 pssa = pSSAlib(SSA.SPDM)
-finalpops = pssa.sample_testcase_populations(Testcase.homoreaction, [k1, k2, omega, A0], 1000, samples)
+finalpops = pssa.sample_testcase_population(Testcase.homoreaction, [k1, k2, omega, A0], 1000, samples)
 
 bins, counts = np.unique(finalpops.squeeze(), axis=0, return_counts=True)
 

@@ -385,7 +385,7 @@ generateTwoComponentSystem(
 )
 {
   if(11 != szParams)
-    PY_ERRMSG("Invalid parameters vector or species number for the Two Component System test case. Five specie numbers and six parameters (five reaction rates and the reactor volume) are expected.");
+    PY_ERRMSG("Invalid parameters vector or species number for the Two Component System test case. Six parameters (five reaction rates and the reactor volume) and five intial specie numbers are expected.");
   double * pdPopulation = pdParams + 6;
 
   // clear any previous model definitions

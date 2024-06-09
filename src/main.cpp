@@ -322,7 +322,7 @@ PYBIND11_MODULE(pypssalib, m) {
       .value("CompositionRejectionSampling", pssalib::PSSA::M_PSSACR);
 
   py::class_<pSSAlibWrapper>(m, "pSSAlib", py::buffer_protocol(), R"pbdoc(
-      Python bindings for PSSAlib
+      Python bindings for pSSAlib
       ---------------------------
 
       .. currentclass:: pSSAlib
@@ -332,7 +332,7 @@ PYBIND11_MODULE(pypssalib, m) {
 
           method
           sample_testcase_trajectory
-          sample_testcase_populations
+          sample_testcase_population
   )pbdoc")
       .def(py::init<>())
       .def(py::init<const pssalib::PSSA::EMethod>())
@@ -365,10 +365,10 @@ PYBIND11_MODULE(pypssalib, m) {
            py::arg("test_case"), py::arg("params"), py::arg("time_end"),
            py::arg("samples") = 1, py::arg("time_start") = 0,
            py::arg("time_step") = 1e-1)
-      .def("sample_testcase_populations", &pSSAlibWrapper::sample_finalpops,
+      .def("sample_testcase_population", &pSSAlibWrapper::sample_finalpops,
            R"pbdoc(
-        Generate model populations of a given test case at a certain time point
-        model using an SSA set by `method` attribute.
+        Generate populations of a given test case model at a certain time point
+        using an SSA set by `method` attribute.
 
         Parameters
         ----------

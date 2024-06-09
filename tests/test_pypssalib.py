@@ -14,6 +14,20 @@ def test_method():
     assert pssa.method == m.SSA.PDM
 
 
+def test_run_tcs_dm(monkeypatch):
+    monkeypatch.setenv("GSL_RNG_SEED", "01062024")
+    expected = np.loadtxt("tests/tcs_dm.dat", dtype=int)
+
+    I_0 = 50
+    HK = 100
+    RR = 100
+
+    pssa = m.pSSAlib(m.SSA.DM)
+    actual = pssa.sample_testcase_population(m.Testcase.TCS, [0.2, 6.5, 0.6, 0.2, 4.0, 4.0, I_0, HK, 0, RR, 0], 100, 10)
+    actual = actual.squeeze()
+    assert (expected == actual).all()
+
+
 def test_run_sbd_pdm(monkeypatch):
     monkeypatch.setenv("GSL_RNG_SEED", "01062024")
     expected = np.loadtxt("tests/sbd_pdm.dat", dtype=int)
