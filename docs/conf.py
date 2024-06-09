@@ -52,7 +52,4 @@ napoleon_use_keyword = False  # Single keywors role
 
 linkcheck_ignore = [
     r'https://doi.org/',
-    r'https://test.pypi.org/project/pypssalib',
-    r'https://github.com/breezerider/pypssalib',
-    r'https://img.shields.io/badge/test.pypi',
 ]

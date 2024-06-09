@@ -21,7 +21,7 @@ Overview
     :target: https://pypssalib.readthedocs.io/
     :alt: Documentation Status
 
-.. |github-actions| image:: https://github.com/breezerider/pypssalib/actions/workflows/github-actions.yml/badge.svg
+.. |github-actions| image:: https://github.com/breezerider/pypssalib/actions/workflows/push_pull.yml/badge.svg
     :alt: GitHub Actions Build Status
     :target: https://github.com/breezerider/pypssalib/actions
 
@@ -29,7 +29,7 @@ Overview
     :alt: PyPI Package license
     :target: https://test.pypi.org/project/pypssalib
 
-.. |version| image:: https://img.shields.io/badge/test.pypi-v0.1.0-dev0-informational?style=flat
+.. |version| image:: https://img.shields.io/badge/test.pypi-v0.1.0.dev0-informational?style=flat
     :alt: PyPI Package latest release
     :target: https://test.pypi.org/project/pypssalib
 

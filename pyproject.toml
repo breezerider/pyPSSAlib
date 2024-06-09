@@ -137,6 +137,16 @@ search = "v{current_version}"
 replace = "v{new_version}"
 
 [[tool.bumpversion.files]]
+filename = "README.rst"
+search = "v{current_major}.{current_minor}.{current_patch}.{current_pre_l}{current_pre_n}"
+replace = "v{new_major}.{new_minor}.{new_patch}.{new_pre_l}{new_pre_n}"
+
+[[tool.bumpversion.files]]
 filename = "docs/conf.py"
 search = "version = release = '{current_version}'"
 replace = "version = release = '{new_version}'"
+
+[[tool.bumpversion.files]]
+filename = "tests/test_pypssalib.py"
+search = "    assert m.__version__ == \"{current_version}\""
+replace = "    assert m.__version__ == \"{new_version}\""
