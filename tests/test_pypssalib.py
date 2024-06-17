@@ -27,7 +27,7 @@ def test_run_invalid_params():
     pssa = m.pSSAlib(m.SSA.SPDM)
     with pytest.raises(RuntimeError) as excinfo:
         pssa.sample_testcase_population(m.Testcase.SingleBirthDeath, None, 100.0, 1)
-    assert "Parameters must a float vector" in str(excinfo.value)
+    assert "Parameters must be a float vector" in str(excinfo.value)
     pssa.sample_testcase_population(m.Testcase.SingleBirthDeath, [1, 1, 10, 0], 100.0, 1)
 
 
@@ -120,7 +120,7 @@ def test_run_clc_pssacr(monkeypatch):
     assert (expected == actual).all()
 
 
-def test_homoreaction_pdf(monkeypatch):
+def test_homoreaction_pdf():
     expected = np.loadtxt("tests/homoreaction_pdf.dat", dtype=float)
 
     omega = 1.0

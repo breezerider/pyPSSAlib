@@ -118,7 +118,7 @@ protected:
       py::buffer_info buf_params = params.request();
 
       if (buf_params.ndim != 1)
-        throw std::runtime_error("Parameters must a float vector");
+        throw std::runtime_error("Parameters must be a float vector");
 
       size_t numTimepoints;
       if (timeStart < 0.0)
@@ -363,7 +363,7 @@ PYBIND11_MODULE(pypssalib, m) {
 
         :param test_case: test case identifier
         :type test_case: Testcase
-        :param params: model parameters fro the test case
+        :param params: model parameters for the test case
         :type params: ndarray[float]
         :param time_end: final simulation time
         :type time_end: float
@@ -389,7 +389,7 @@ PYBIND11_MODULE(pypssalib, m) {
 
         :param test_case: test case identifier
         :type test_case: Testcase
-        :param params: model parameters fro the test case
+        :param params: model parameters for the test case
         :type params: ndarray[float]
         :param time_end: final simulation time
         :type time_end: float
@@ -415,7 +415,7 @@ PYBIND11_MODULE(pypssalib, m) {
         :type k2: float
         :param omega: subvolume size
         :type omega: float
-        :return: analytical PDF values for respective species populations.
+        :return: analytical PDF values for respective species populations
         :rtype: ndarray[float]
     )pbdoc",
         py::arg("n"), py::arg("k1"), py::arg("k2"), py::arg("omega"));

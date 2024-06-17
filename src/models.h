@@ -9,9 +9,8 @@
 
 #include "utils.h"
 
-#ifndef PSSA_MODELS_H_
-#define PSSA_MODELS_H_
-
+#ifndef PYPSSA_MODELS_H_
+#define PYPSSA_MODELS_H_
 
 void
 generateCyclicLinearChain(
@@ -776,4 +775,4 @@ void computeHomoreactionPDF(unsigned int *arN, size_t szN, double k1, double k2,
   }
 }
 
-#endif /* PSSA_MODELS_H_ */
+#endif
