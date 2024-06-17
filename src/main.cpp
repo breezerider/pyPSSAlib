@@ -259,6 +259,162 @@ public:
       double timeEnd, size_t samples) {
     return run(testCase, params, samples, timeEnd, -1.0, 0.0);
   }
+
+  //! Compute mass-action ODEs for a given model
+  py::array_t<double> compute_odes(enum tagTestCase testCase,
+      py::array_t<double, py::array::c_style | py::array::forcecast> params,
+      py::array_t<unsigned int, py::array::c_style | py::array::forcecast> population)
+  {
+      // check params
+      py::buffer_info buf_params = params.request();
+
+      if (buf_params.ndim != 1)
+          throw std::runtime_error("Parameters must be a float vector");
+
+      // check population
+      py::buffer_info buf_population = population.request();
+
+      if (buf_population.ndim != 1)
+          throw std::runtime_error("Populations must be a float vector");
+
+      // input parameters vector
+      double *ptr_params = static_cast<double *>(buf_params.ptr);
+      size_t num_params = buf_params.size;
+
+      // initalize the model
+      pssalib::datamodel::detail::Model model;
+      if (!initializeModel(model, testCase, ptr_params,
+                            num_params))
+          throw std::runtime_error("Failed to intialize test case model");
+
+      // normalize the model
+      model.normalize();
+
+      // input population vector
+      unsigned int *ptr_population = static_cast<unsigned int *>(buf_population.ptr);
+      size_t num_population = buf_population.size;
+
+      if(num_population != model.getSpeciesCount())
+          throw std::length_error("population array size must have same size as number of species in the model");
+
+      // intialize output vector
+      size_t numSpecies = model.getSpeciesCount();
+      auto result = py::array_t<double>(
+          {numSpecies}, // shape
+          {sizeof(double)} // strides
+      );
+      py::buffer_info buf_result = result.request();
+      double *ptr_result = static_cast<double *>(buf_result.ptr);
+
+      // compute the ODEs
+      computeODEs(model, ptr_population, ptr_result);
+
+      return result;
+  }
+
+  //! Compute Jacobian of mass-action ODEs for a given model
+  py::array_t<double> compute_jacobian(enum tagTestCase testCase,
+      py::array_t<double, py::array::c_style | py::array::forcecast> params,
+      py::array_t<unsigned int, py::array::c_style | py::array::forcecast> population)
+  {
+      // check params
+      py::buffer_info buf_params = params.request();
+
+      if (buf_params.ndim != 1)
+          throw std::runtime_error("Parameters must be a float vector");
+
+      // check population
+      py::buffer_info buf_population = population.request();
+
+      if (buf_population.ndim != 1)
+          throw std::runtime_error("Populations must be a float vector");
+
+      // input parameters vector
+      double *ptr_params = static_cast<double *>(buf_params.ptr);
+      size_t num_params = buf_params.size;
+
+      // initalize the model
+      pssalib::datamodel::detail::Model model;
+      if (!initializeModel(model, testCase, ptr_params,
+                            num_params))
+          throw std::runtime_error("Failed to intialize test case model");
+
+      // normalize the model
+      model.normalize();
+
+      // input population vector
+      unsigned int *ptr_population = static_cast<unsigned int *>(buf_population.ptr);
+      size_t num_population = buf_population.size;
+
+      if(num_population != model.getSpeciesCount())
+          throw std::length_error("population array size must have same size as number of species in the model");
+
+      // intialize output vector
+      size_t numSpecies = model.getSpeciesCount();
+      auto result = py::array_t<double>(
+          {numSpecies, numSpecies}, // shape
+          {numSpecies * sizeof(double), sizeof(double)} // strides
+      );
+      py::buffer_info buf_result = result.request();
+      double *ptr_result = static_cast<double *>(buf_result.ptr);
+
+      // compute the ODEs
+      computeJacobian(model, ptr_population, ptr_result);
+
+      return result;
+  }
+
+  //! Compute Q-term for Lyapunov Equation based on mass-action ODEs for a given model
+  py::array_t<double> compute_lyapunovQ(enum tagTestCase testCase,
+      py::array_t<double, py::array::c_style | py::array::forcecast> params,
+      py::array_t<unsigned int, py::array::c_style | py::array::forcecast> population)
+  {
+      // check params
+      py::buffer_info buf_params = params.request();
+
+      if (buf_params.ndim != 1)
+          throw std::runtime_error("Parameters must be a float vector");
+
+      // check population
+      py::buffer_info buf_population = population.request();
+
+      if (buf_population.ndim != 1)
+          throw std::runtime_error("Populations must be a float vector");
+
+      // input parameters vector
+      double *ptr_params = static_cast<double *>(buf_params.ptr);
+      size_t num_params = buf_params.size;
+
+      // initalize the model
+      pssalib::datamodel::detail::Model model;
+      if (!initializeModel(model, testCase, ptr_params,
+                            num_params))
+          throw std::runtime_error("Failed to intialize test case model");
+
+      // normalize the model
+      model.normalize();
+
+      // input population vector
+      unsigned int *ptr_population = static_cast<unsigned int *>(buf_population.ptr);
+      size_t num_population = buf_population.size;
+
+      if(num_population != model.getSpeciesCount())
+          throw std::length_error("population array size must have same size as number of species in the model");
+
+      // intialize output vector
+      size_t numSpecies = model.getSpeciesCount();
+      auto result = py::array_t<double>(
+          {numSpecies, numSpecies}, // shape
+          {numSpecies * sizeof(double), sizeof(double)} // strides
+      );
+      py::buffer_info buf_result = result.request();
+      double *ptr_result = static_cast<double *>(buf_result.ptr);
+
+      // compute the ODEs
+      computeQ(model, ptr_population, ptr_result);
+
+      return result;
+  }
 };
 
 //! Compute analytical PDF for Homoreaction model
@@ -399,7 +555,55 @@ PYBIND11_MODULE(pypssalib, m) {
         :rtype: ndarray[float]
     )pbdoc",
            py::arg("test_case"), py::arg("params"), py::arg("time_end"),
-           py::arg("samples") = 1);
+           py::arg("samples") = 1)
+      .def("odes", &pSSAlibWrapper::compute_odes, R"pbdoc(
+        Compute mass-action ODEs for a given model
+
+        Parameters
+        ----------
+
+        :param test_case: test case identifier
+        :type test_case: Testcase
+        :param params: model parameters for the test case
+        :type params: ndarray[float]
+        :param population: species population
+        :type population: ndarray[float]
+        :return: mass-action ODEs value for respective species population
+        :rtype: ndarray[float]
+    )pbdoc",
+        py::arg("test_case"), py::arg("params"), py::arg("population"))
+      .def("jacobian", &pSSAlibWrapper::compute_jacobian, R"pbdoc(
+        Compute Jacobian of mass-action ODEs for a given model
+
+        Parameters
+        ----------
+
+        :param test_case: test case identifier
+        :type test_case: Testcase
+        :param params: model parameters for the test case
+        :type params: ndarray[float]
+        :param population: species population
+        :type population: ndarray[float]
+        :return: Jacobian of mass-action ODEs value for respective species population
+        :rtype: ndarray[float]
+    )pbdoc",
+        py::arg("test_case"), py::arg("params"), py::arg("population"))
+      .def("lyapunovQ", &pSSAlibWrapper::compute_lyapunovQ, R"pbdoc(
+        Compute Q-term for Lyapunov Equation based on mass-action ODEs for a given model
+
+        Parameters
+        ----------
+
+        :param test_case: test case identifier
+        :type test_case: Testcase
+        :param params: model parameters for the test case
+        :type params: ndarray[float]
+        :param population: species population
+        :type population: ndarray[float]
+        :return: Q-term for Lyapunov Equation value for respective species population
+        :rtype: ndarray[float]
+    )pbdoc",
+        py::arg("test_case"), py::arg("params"), py::arg("population"));
 
   m.def("homoreaction_pdf", homoreactionPDF, R"pbdoc(
         Compute analytic PDF for Homoreaction model

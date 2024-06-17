@@ -132,3 +132,122 @@ def test_homoreaction_pdf():
 
     actual = np.stack((N, analytical_pdf), axis=1, dtype=float)
     assert np.isclose(actual, expected).all()
+
+
+class CATest:
+    k1_gen = 1.0
+    k11_asc = 2.1
+    k11_dis = 0.1
+    k1_deg = 0.01
+    k2_deg = 0.1
+    omega = 15
+    S1_0 = 0
+    S2_0 = 0
+
+    # parameter vector
+    @classmethod
+    def k(cls, S1_0=0, S2_0=0):
+        return [2, cls.k1_gen, cls.k11_asc, cls.k11_dis, cls.k1_deg, cls.k2_deg, cls.omega, S1_0, S2_0]
+
+    # analytical ODEs
+    @classmethod
+    def dsdt(cls, s):
+        return np.array(
+            [
+                cls.k1_gen - 2.0 * s[0] * s[0] * cls.k11_asc + 2.0 * s[1] * cls.k11_dis - cls.k1_deg * s[0],
+                s[0] * s[0] * cls.k11_asc - s[1] * cls.k11_dis - cls.k2_deg * s[1],
+            ]
+        )
+
+    # analytical Jacobian
+    @classmethod
+    def jacobian(cls, s):
+        return np.array(
+            [
+                [-4.0 * s[0] * cls.k11_asc - cls.k1_deg, 2.0 * cls.k11_dis],
+                [2.0 * s[0] * cls.k11_asc, -cls.k11_dis - cls.k2_deg],
+            ]
+        )
+
+    # analytical Jacobian
+    @classmethod
+    def lyapunovQ(cls, s):
+        # stoichiometry matrix
+        S = np.array(
+            [
+                [1, 0],
+                [-2, 1],
+                [2, -1],
+                [-1, 0],
+                [0, -1],
+            ]
+        )
+        F = np.array([cls.k1_gen, cls.k11_asc * s[0] ** 2, cls.k11_dis * s[1], cls.k1_deg * s[0], cls.k2_deg * s[1]])
+
+        return cls.omega * S.T.dot(np.diag(F)).dot(S)
+
+
+def test_odes():
+    # create simulator instance
+    pssa = m.pSSAlib()
+
+    nx, ny = 5, 5
+    sx, sy = np.linspace(10, 100, nx, dtype=int), np.linspace(10, 100, ny, dtype=int)
+    SX, SY = np.meshgrid(sx, sy, indexing='ij')
+    for i in range(nx):
+        for j in range(ny):
+            # number of molecules
+            S = np.array([SX[i, j], SY[i, j]])
+            # species concentration
+            s = S / CATest.omega
+
+            expected = CATest.dsdt(s)
+
+            actual = pssa.odes(m.Testcase.ca, CATest.k(), S)
+
+            assert np.isclose(actual, expected).all()
+
+
+def test_jacobian():
+    # create simulator instance
+    pssa = m.pSSAlib()
+
+    nx, ny = 5, 5
+    sx, sy = np.linspace(10, 100, nx, dtype=int), np.linspace(10, 100, ny, dtype=int)
+    SX, SY = np.meshgrid(sx, sy, indexing='ij')
+    for i in range(nx):
+        for j in range(ny):
+            # number of molecules
+            S = np.array([SX[i, j], SY[i, j]])
+            # species concentration
+            s = S / CATest.omega
+
+            expected = CATest.jacobian(s)
+
+            actual = pssa.jacobian(m.Testcase.ca, CATest.k(), S)
+
+            assert np.isclose(actual, expected).all()
+
+
+def test_lyapunovQ():
+    # create simulator instance
+    pssa = m.pSSAlib()
+
+    nx, ny = 5, 5
+    sx, sy = np.linspace(10, 100, nx, dtype=int), np.linspace(10, 100, ny, dtype=int)
+    SX, SY = np.meshgrid(sx, sy, indexing='ij')
+    for i in range(nx):
+        for j in range(ny):
+            # number of molecules
+            S = np.array([SX[i, j], SY[i, j]])
+            # species concentration
+            s = S / CATest.omega
+
+            expected = CATest.lyapunovQ(s)
+
+            actual = pssa.lyapunovQ(m.Testcase.ca, CATest.k(), S)
+
+            print(expected)
+            print(actual)
+
+            assert np.isclose(actual, expected).all()
