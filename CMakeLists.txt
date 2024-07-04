@@ -19,7 +19,7 @@ ExternalProject_add(
     BUILD_BYPRODUCTS ${CMAKE_CURRENT_SOURCE_DIR}/externals/${CMAKE_INSTALL_LIBDIR}/libpssa${CMAKE_STATIC_LIBRARY_SUFFIX}
     INSTALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/externals"
     GIT_REPOSITORY https://github.com/breezerider/pSSAlib.git
-    GIT_TAG v2.1.3
+    GIT_TAG v2.1.4
     PREFIX pssalib
     CONFIGURE_COMMAND autoreconf -fvi && ./configure --prefix=${CMAKE_CURRENT_SOURCE_DIR}/externals
                       --libdir=${CMAKE_CURRENT_SOURCE_DIR}/externals/${CMAKE_INSTALL_LIBDIR}

@@ -251,3 +251,19 @@ def test_lyapunovQ():
             print(actual)
 
             assert np.isclose(actual, expected).all()
+
+
+def test_print_ca():
+    # create simulator instance
+    pssa = m.pSSAlib()
+    expected = """Reaction network of '[ColloidalAggregation]':
+[R0]: 0 * [ ] -1-> 1 * [S0]
+[R1]: 2 * [S0] -2.1-> 1 * [S1]
+[R2]: 1 * [S1] -0.1-> 2 * [S0]
+[R3]: 1 * [S0] -0.01-> 0 * [ ]
+[R4]: 1 * [S1] -0.1-> 0 * [ ]
+"""
+
+    actual = pssa.print_test_case(m.Testcase.ca, CATest.k())
+
+    assert expected == actual

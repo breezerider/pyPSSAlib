@@ -415,6 +415,36 @@ public:
 
       return result;
   }
+
+  //! Print reaction network for a given model
+  std::string print_test_case(enum tagTestCase testCase,
+      py::array_t<double, py::array::c_style | py::array::forcecast> params)
+  {
+      // check params
+      py::buffer_info buf_params = params.request();
+
+      if (buf_params.ndim != 1)
+          throw std::runtime_error("Parameters must be a float vector");
+
+      // input parameters vector
+      double *ptr_params = static_cast<double *>(buf_params.ptr);
+      size_t num_params = buf_params.size;
+
+      // initalize the model
+      pssalib::datamodel::detail::Model model;
+      if (!initializeModel(model, testCase, ptr_params,
+                            num_params))
+          throw std::runtime_error("Failed to intialize test case model");
+
+      // normalize the model
+      model.normalize();
+
+      // print reaction network
+      std::stringstream ssTemp;
+      printReactionNetwork(model, ssTemp);
+
+      return ssTemp.str();
+  }
 };
 
 //! Compute analytical PDF for Homoreaction model
@@ -603,7 +633,21 @@ PYBIND11_MODULE(pypssalib, m) {
         :return: Q-term for Lyapunov Equation value for respective species population
         :rtype: ndarray[float]
     )pbdoc",
-        py::arg("test_case"), py::arg("params"), py::arg("population"));
+        py::arg("test_case"), py::arg("params"), py::arg("population"))
+      .def("print_test_case", &pSSAlibWrapper::print_test_case, R"pbdoc(
+        Get reaction network for a given model as a string
+
+        Parameters
+        ----------
+
+        :param test_case: test case identifier
+        :type test_case: Testcase
+        :param params: model parameters for the test case
+        :type params: ndarray[float]
+        :return: string containing reaction network for a given model
+        :rtype: str
+    )pbdoc",
+        py::arg("test_case"), py::arg("params"));
 
   m.def("homoreaction_pdf", homoreactionPDF, R"pbdoc(
         Compute analytic PDF for Homoreaction model
