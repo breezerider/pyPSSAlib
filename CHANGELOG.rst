@@ -2,8 +2,8 @@
 Changelog
 =========
 
-Unreleased
-----------
+0.1.0-dev3 (2024-07-04)
+-----------------------
 
 * Add ``print_test_case`` to generate string representation of the reaction network for a given model
 
