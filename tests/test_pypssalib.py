@@ -256,7 +256,14 @@ def test_lyapunovQ():
 def test_print_ca():
     # create simulator instance
     pssa = m.pSSAlib()
-    expected = """Reaction network of '[ColloidalAggregation]':
+    expected = """'[ColloidalAggregation]' model:
+
+Compartment volume: 15
+
+Initial species population:
+[S0] = 1\t[S1] = 2\t
+
+Reaction network:
 [R0]: 0 * [ ] -1-> 1 * [S0]
 [R1]: 2 * [S0] -2.1-> 1 * [S1]
 [R2]: 1 * [S1] -0.1-> 2 * [S0]
@@ -264,6 +271,30 @@ def test_print_ca():
 [R4]: 1 * [S1] -0.1-> 0 * [ ]
 """
 
-    actual = pssa.print_test_case(m.Testcase.ca, CATest.k())
+    actual = pssa.print_test_case(m.Testcase.ca, CATest.k(S1_0=1, S2_0=2))
+
+    assert expected == actual
+
+
+def test_print_ed():
+    # create simulator instance
+    pssa = m.pSSAlib()
+    expected = """'[EnzymaticDegration]' model:
+
+Compartment volume: 15
+
+Initial species population:
+[mRNA] = 1\t[Complex] = 2\t[Enzyme] = 3\t[Protein] = 4\t
+
+Reaction network:
+[mRNA_Production]: 0 * [ ] -2.25-> 1 * [mRNA]
+[Protein_Translation]: 1 * [mRNA] -4-> 1 * [mRNA] + 1 * [Protein]
+[Complex_Formation]: 1 * [Enzyme] + 1 * [Protein] -100-> 1 * [Complex]
+[Complex_Detachment]: 1 * [Complex] -1-> 1 * [Enzyme] + 1 * [Protein]
+[Complex_Degraded]: 1 * [Complex] -1-> 1 * [Enzyme]
+[mRNA_Degradation]: 1 * [mRNA] -10-> 0 * [ ]
+"""
+
+    actual = pssa.print_test_case(m.Testcase.ed, [2.25, 4, 100, 1, 1, 10, 15, 1, 2, 3, 4])
 
     assert expected == actual

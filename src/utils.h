@@ -24,7 +24,20 @@
  */
 std::ostream & printReactionNetwork(const pssalib::datamodel::detail::Model & model, std::ostream & os)
 {
-  os << "Reaction network of '" << model.toString() << "':\n";
+  os << "'" << model.toString() << "' model:\n\n";
+
+  os << "Compartment volume: " << model.getCompartmentVolume() << "\n\n";
+
+  os << "Initial species population:\n";
+
+  for(UINTEGER si = 0; si < model.getSpeciesCount(); ++si)
+  {
+    const pssalib::datamodel::detail::Species * s = model.getSpecies(si);
+
+    os << s->toString() << " = " << s->getInitialAmount() << "\t";
+  }
+
+  os << "\n\nReaction network:\n";
 
   for(UINTEGER ri = 0; ri < model.getReactionsCount(); ++ri)
   {
@@ -42,6 +55,8 @@ std::ostream & printReactionNetwork(const pssalib::datamodel::detail::Model & mo
         } else {
           os << " -" << r->getForwardRate() << "-> ";
         }
+      } else if(sri > 0) {
+        os << " + ";
       }
 
       os << sr->toString();

@@ -733,7 +733,7 @@ generateEnzymaticDegradation(
   // reactant
   spRef = reaction->getReactantsListAt(0);
   spRef->setStoichiometry(1);
-  spRef->setIndex(3);
+  spRef->setIndex(1);
 
   // product
   spRef = reaction->getProductsListAt(0);

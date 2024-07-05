@@ -2,6 +2,12 @@
 Changelog
 =========
 
+Unreleased
+----------
+
+* Extend ``print_test_case`` to output compartment volume and initial species population.
+* Correct ``Complex_Degraded`` reaction of ``EnzymaticDegration`` test case.
+
 0.1.0-dev3 (2024-07-04)
 -----------------------
 
