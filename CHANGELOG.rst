@@ -2,8 +2,8 @@
 Changelog
 =========
 
-Unreleased
-----------
+0.1.0-dev5 (2024-07-19)
+-----------------------
 
 * Add pickling support to ``pSSAlib`` class.
 
