@@ -230,6 +230,11 @@ public:
     // do nothing
   }
 
+  //! Copy Constructor
+  pSSAlibWrapper(const pSSAlibWrapper &other) : bProcessing(false), method(other.method) {
+    // do nothing
+  }
+
   //! Convert to a string
   std::string str() const {
     return (boost::format("method='%1%'") %
@@ -647,7 +652,20 @@ PYBIND11_MODULE(pypssalib, m) {
         :return: string containing reaction network for a given model
         :rtype: str
     )pbdoc",
-        py::arg("test_case"), py::arg("params"));
+        py::arg("test_case"), py::arg("params"))
+      .def(py::pickle(
+        [](const pSSAlibWrapper &instance) { // __getstate__
+            /* Return a tuple that fully encodes the state of the object */
+            return py::make_tuple(instance.method);
+        },
+        [](py::tuple t) { // __setstate__
+            if (t.size() != 1)
+                throw std::runtime_error("Invalid state!");
+
+            /* Create a new C++ instance */
+            return pSSAlibWrapper(t[0].cast<pssalib::PSSA::EMethod>());
+        }
+    ));
 
   m.def("homoreaction_pdf", homoreactionPDF, R"pbdoc(
         Compute analytic PDF for Homoreaction model

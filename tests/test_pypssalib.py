@@ -1,3 +1,5 @@
+import pickle
+
 import numpy as np
 import pypssalib as m
 import pytest
@@ -13,6 +15,15 @@ def test_method():
 
     pssa.method = m.SSA.PDM
     assert pssa.method == m.SSA.PDM
+
+
+def test_pickling():
+    original_pssa = m.pSSAlib(m.SSA.PSSACR)
+
+    pickled_data = pickle.dumps(original_pssa)
+    unpickled_pssa = pickle.loads(pickled_data)
+
+    assert original_pssa.method == unpickled_pssa.method
 
 
 def test_run_invalid_testcase():
