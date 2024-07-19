@@ -47,14 +47,15 @@ Overview
 
 .. end-badges
 
-Python bindings for `pSSAlib <https://github.com/breezerider/pSSAlib>`_ supporting following stoachastic simulation algorithms (SSAs):
+Python bindings for `pSSAlib <https://github.com/breezerider/pSSAlib>`_ that supports running temporal simulations of chemical reaction networks using any of the following stochastic simulation algorithms (SSAs):
 
 * Gillespie’s direct method (DM) [1]_ as a reference;
 * partial-propensity direct method (PDM) [2]_;
 * sorting partial-propensity direct method (SPDM) [2]_;
 * partial-propensity SSA with Composition-Rejection Sampling (PSSA-CR) [3]_;
 
-Package provides an interface to sample individual trajectories as well as steady-stat populations. A number of build-in models are provided:
+Package provides an interface to sample individual trajectories as well as steady-state populations.
+Currently, only a number of build-in models are supported and provided with the package:
 
 * Cyclic Linear Chain (CLC) model [2]_
 * Colloidal Aggregation (CA) model [2]_
@@ -67,6 +68,8 @@ Package provides an interface to sample individual trajectories as well as stead
 Installation
 ============
 
+This package requires that `GNU Scientific Library (GSL) <http://www.gnu.org/software/gsl/>`_ is installed on the machine.
+
 Get latest released version from `Test PyPI <https://test.pypi.org/>`_::
 
     pip install --extra-index-url https://test.pypi.org/simple/ pypssalib
@@ -74,6 +77,8 @@ Get latest released version from `Test PyPI <https://test.pypi.org/>`_::
 You can also install the in-development version with::
 
     pip install https://github.com/breezerider/pypssalib/archive/main.zip
+
+This requires a modern C++ compiler (tested with gcc and clang) as well as that `Boost C++ Headers <http://www.boost.org/>`_ are available.
 
 
 Documentation
@@ -96,6 +101,7 @@ Development
 To run all the tests issue this command in a terminal::
 
     tox
+
 
 References
 ==========
