@@ -83,7 +83,7 @@ generateColloidalAggregation(
 {
   size_t szPopulation = pdParams[0];
   if((1 + szPopulation*szPopulation/2 + szPopulation + 2 + szPopulation) != szParams) // system size, reactions rates, reactor volume and initial species population
-    PY_ERRMSG("Invalid parameters vector for the ColloidalAggregation test case, must contain exactly (1 + (1 + floor(n^2/2) + n) + 1 + n) elements, where n is the number of species in the system. It must contain the system size, reactions rates, reactor volume and initial species population");
+    PY_ERRMSG("Invalid parameters vector for the ColloidalAggregation test case, must contain exactly (1 + (1 + floor(n^2/2) + n) + 1 + n) elements, where n is the number of species in the system. Parameter order: system size, reactions rates, reactor volume and initial species population");
   double * pdPopulation = pdParams + (szPopulation*szPopulation/2 + szPopulation + 2) + 1;
 
   // clear any previous model definitions
