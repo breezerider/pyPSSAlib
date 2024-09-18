@@ -21,7 +21,7 @@ year = '2024'
 author = 'Oleksandr Ostrenko'
 copyright = '{0}, {1}'.format(year, author)
 # version = 'dev'
-version = release = '0.1.0-dev5'
+version = release = '0.1.0-dev6'
 
 pygments_style = 'trac'
 templates_path = ['.']

@@ -2,8 +2,8 @@
 Changelog
 =========
 
-Unreleased
-----------
+0.1.0-dev6 (2024-09-18)
+-----------------------
 
 * Correct indexing in CyclicLinearChain definitions
 * Make error message for ColloidalAggregation more specific
