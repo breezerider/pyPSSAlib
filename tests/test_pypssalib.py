@@ -109,7 +109,7 @@ def test_run_clc_pssacr(monkeypatch):
     samples = 10
     expected = []
     for i in range(samples):
-        expected.append(np.loadtxt(f"tests/clc_pssacr_{i}.dat", dtype=int))
+        expected.append(np.loadtxt(f"tests/clc_pssacr/clc_pssacr_{i}.dat", dtype=int))
     expected = np.stack(expected).squeeze()
 
     system_size = 50
@@ -258,10 +258,28 @@ def test_lyapunovQ():
 
             actual = pssa.lyapunovQ(m.Testcase.ca, CATest.k(), S)
 
-            print(expected)
-            print(actual)
-
             assert np.isclose(actual, expected).all()
+
+
+def test_print_clc():
+    # create simulator instance
+    pssa = m.pSSAlib()
+    expected = """'[CyclicLinearChain]' model:
+
+Compartment volume: 10
+
+Initial species population:
+[S0] = 20\t[S1] = 30\t[S2] = 50\t
+
+Reaction network:
+[R0]: 1 * [S0] -2-> 1 * [S1]
+[R1]: 1 * [S1] -1.5-> 1 * [S2]
+[R2]: 1 * [S2] -3.2-> 1 * [S0]
+"""
+
+    actual = pssa.print_test_case(m.Testcase.clc, [3, 2, 1.5, 3.2, 10, 20, 30, 50])
+
+    assert expected == actual
 
 
 def test_print_ca():

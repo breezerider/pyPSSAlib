@@ -21,15 +21,15 @@ generateCyclicLinearChain(
 {
   size_t szPopulation = pdParams[0];
   if((1 + szPopulation + 1 + szPopulation) != szParams) // system size, reactions rates, reactor volume and initial species population
-    PY_ERRMSG("Invalid parameters vector for the CyclicLinearChain test case, must contain system size, reactions rates, reactor volume and initial species population.");
-  double * pdPopulation = pdParams + szPopulation + 1;
+    PY_ERRMSG("Invalid parameters vector for the CyclicLinearChain test case, must contain exactly (1 + n + 1 + n) elements, where n is the number of species in the system. Parameter order: system size, reactions rates, reactor volume and initial species population.");
+  double * pdPopulation = pdParams + 1 + szPopulation + 1;
 
   // clear any previous model definitions
   model.free();
 
   // initialize the model
   model.setId("CyclicLinearChain");
-  model.setCompartmentVolume(pdParams[szPopulation]);
+  model.setCompartmentVolume(pdParams[1 + szPopulation]);
   model.allocSpecies(szPopulation);
   model.allocReactions(szPopulation);
 
@@ -54,7 +54,7 @@ generateCyclicLinearChain(
     reaction->setReversible(false);
 
     // rate constant
-    reaction->setForwardRate(pdParams[r]);
+    reaction->setForwardRate(pdParams[r + 1]);
 
     // species refs
     reaction->allocSpeciesRefs(1, 1);
