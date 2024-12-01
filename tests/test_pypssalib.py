@@ -6,7 +6,7 @@ import pytest
 
 
 def test_version():
-    assert m.__version__ == "0.1.0-dev6"
+    assert m.__version__ == "0.1.0-dev7"
 
 
 def test_method():

@@ -2,8 +2,8 @@
 Changelog
 =========
 
-Unreleased
-----------
+0.1.0-dev7 (2024-12-01)
+-----------------------
 
 * Change input species populations argument type to double-precision floating-point number in ``odes``, ``jacobian`` and ``lyapunovQ``.
 * Provide an option to print ODEs for temporal evolution of species concentrations in the model.
