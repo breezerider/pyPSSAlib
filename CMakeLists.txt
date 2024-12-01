@@ -9,7 +9,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 include(GNUInstallDirs)
 include(ExternalProject)
 
-find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module)
+find_package(Python3 ${PYTHON_VERSION} EXACT REQUIRED COMPONENTS Interpreter Development.Module)
 find_package(pybind11 REQUIRED CONFIG)
 find_package(GSL REQUIRED)
 find_package(Boost 1.56 REQUIRED)

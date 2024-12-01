@@ -3,6 +3,7 @@ Python bindings for PSSAlib
 """
 
 import os
+import platform
 import re
 import subprocess
 import sys
@@ -56,7 +57,9 @@ class CMakeBuild(build_ext):
 
         # Set output directory and config for the build, pyPSSAlib version
         # and pass the ABI suffix for SO library
+        python_major, python_minor, _ = platform.python_version_tuple()
         cmake_args = [
+            f"-DPYTHON_VERSION={python_major}.{python_minor}",
             f"-DPYPSSALIB_VERSION={__version__}",
             f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}{os.sep}",
             f"-DPYTHON_SOABI={sysconfig.get_config_var('SOABI')}",
