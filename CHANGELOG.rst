@@ -2,6 +2,13 @@
 Changelog
 =========
 
+Unreleased
+----------
+
+* Change input species populations argument type to double-precision floating-point number in ``odes``, ``jacobian`` and ``lyapunovQ``.
+* Provide an option to print ODEs for temporal evolution of species concentrations in the model.
+* Provide current Python interpreter version to CMake build subsystem.
+
 0.1.0-dev6 (2024-09-18)
 -----------------------
 
