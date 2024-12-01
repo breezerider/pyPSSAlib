@@ -127,18 +127,15 @@ std::ostream & printODEs(const pssalib::datamodel::detail::Model & model, std::o
 std::unique_ptr<double[]>
 computeMassactioRates(
   const pssalib::datamodel::detail::Model & model,
-  const unsigned int * paruPopulation
+  const double * pardPopulation
 )
 {
-  REAL Vinv = model.getCompartmentVolume();
-  if(Vinv <= 0.0)
-    Vinv = 1.0;
-  else
-    Vinv = 1.0 / Vinv;
+  const double Vol = model.getCompartmentVolume();
+  double Vinv = 1.0;
+  if(Vol > 0.0)
+    Vinv = 1.0 / Vol;
 
   std::unique_ptr<double[]> rates = boost::make_unique<double[]>(model.getReactionsCount());
-
-  // std::cerr << "rates = [";
 
   for(UINTEGER ri = 0; ri < model.getReactionsCount(); ++ri)
   {
@@ -152,12 +149,9 @@ computeMassactioRates(
       const pssalib::datamodel::detail::SpeciesReference * sr = r->getSpeciesReferenceAt(sri);
 
       if(!sr->isReservoir() && (sri < r->getReactantsCount()))
-        rates[ri] *= std::pow(REAL(paruPopulation[sr->getIndex()]) * Vinv, sr->getStoichiometryAbs());
+        rates[ri] *= std::pow(pardPopulation[sr->getIndex()] * Vinv, sr->getStoichiometryAbs());
     }
-
-    // std::cerr << rates[ri] << ", ";;
   }
-  // std::cerr << "]" << std::endl;
 
   return rates;
 }
@@ -168,18 +162,11 @@ computeMassactioRates(
 void
 computeODEs(
   const pssalib::datamodel::detail::Model & model,
-  const unsigned int * paruPopulation,
+  const double * pardPopulation,
   double * pardODEs
 )
 {
-  std::unique_ptr<double[]> rates = computeMassactioRates(model, paruPopulation);
-
-  // printReactionNetwork(model, std::cerr);
-  //
-  // std::cerr << "before odes = [";
-  // for(UINTEGER si = 0; si < model.getSpeciesCount(); ++si)
-  //   std::cerr << pardODEs[si] << ", ";
-  // std::cerr << "]" << std::endl;
+  std::unique_ptr<double[]> rates = computeMassactioRates(model, pardPopulation);
 
   for(UINTEGER si = 0; si < model.getSpeciesCount(); ++si)
     pardODEs[si] = 0.0;
@@ -202,11 +189,6 @@ computeODEs(
       }
     }
   }
-
-  // std::cerr << "after odes = [";
-  // for(UINTEGER si = 0; si < model.getSpeciesCount(); ++si)
-  //   std::cerr << pardODEs[si] << ", ";
-  // std::cerr << "]" << std::endl;
 }
 
 /*
@@ -215,55 +197,54 @@ computeODEs(
 void
 computeJacobian(
   pssalib::datamodel::detail::Model & model,
-  const unsigned int * paruPopulation,
+  const double * pardPopulation,
   double * pardJ
 )
 {
-    double Vinv = model.getCompartmentVolume();
-    if(Vinv <= 0.0)
-        Vinv = 1.0;
-    else
-        Vinv = 1.0 / Vinv;
+  const double Vol = model.getCompartmentVolume();
+  double Vinv = 1.0;
+  if(Vol > 0.0)
+    Vinv = 1.0 / Vol;
 
-    size_t lenJ = model.getSpeciesCount() * model.getSpeciesCount();
-    for(UINTEGER si = 0; si < lenJ; ++si)
-        pardJ[si] = 0.0;
+  size_t lenJ = model.getSpeciesCount() * model.getSpeciesCount();
+  for(UINTEGER si = 0; si < lenJ; ++si)
+      pardJ[si] = 0.0;
 
-    for(UINTEGER ri = 0; ri < model.getReactionsCount(); ++ri)
+  for(UINTEGER ri = 0; ri < model.getReactionsCount(); ++ri)
+  {
+    const pssalib::datamodel::detail::Reaction * r = model.getReaction(ri);
+
+    for(UINTEGER sri = 0; sri < r->getReactantsCount(); ++sri)
     {
-        const pssalib::datamodel::detail::Reaction * r = model.getReaction(ri);
+      const pssalib::datamodel::detail::SpeciesReference * srI = r->getSpeciesReferenceAt(sri);
 
-        for(UINTEGER sri = 0; sri < r->getReactantsCount(); ++sri)
-        {
-            const pssalib::datamodel::detail::SpeciesReference * srI = r->getSpeciesReferenceAt(sri);
+      double jri = r->getForwardRate();
 
-            double jri = r->getForwardRate();
+      if(srI->isReservoir()) break;
 
-            if(srI->isReservoir()) break;
+      for(UINTEGER srj = 0; srj < r->getReactantsCount(); ++srj)
+      {
+        const pssalib::datamodel::detail::SpeciesReference * srJ = r->getSpeciesReferenceAt(srj);
 
-            for(UINTEGER srj = 0; srj < r->getReactantsCount(); ++srj)
-            {
-                const pssalib::datamodel::detail::SpeciesReference * srJ = r->getSpeciesReferenceAt(srj);
+        if(srI->getIndex() != srJ->getIndex())
+          jri *= std::pow(pardPopulation[srJ->getIndex()] * Vinv, srJ->getStoichiometryAbs());
+        else if(srJ->getStoichiometryAbs() > 1)
+          jri *= double(srJ->getStoichiometryAbs()) * std::pow(pardPopulation[srJ->getIndex()] * Vinv, srJ->getStoichiometryAbs() - 1);
+      }
 
-                if(srI->getIndex() != srJ->getIndex())
-                    jri *= std::pow(REAL(paruPopulation[srJ->getIndex()]) * Vinv, srJ->getStoichiometryAbs());
-                else if(srJ->getStoichiometryAbs() > 1)
-                    jri *= double(srJ->getStoichiometryAbs()) * std::pow(REAL(paruPopulation[srJ->getIndex()]) * Vinv, srJ->getStoichiometryAbs() - 1);
-            }
+      for(UINTEGER srj = 0; srj < r->getSpeciesReferencesCount(); ++srj)
+      {
+        const pssalib::datamodel::detail::SpeciesReference * srJ = r->getSpeciesReferenceAt(srj);
 
-            for(UINTEGER srj = 0; srj < r->getSpeciesReferencesCount(); ++srj)
-            {
-                const pssalib::datamodel::detail::SpeciesReference * srJ = r->getSpeciesReferenceAt(srj);
+        if(srJ->isReservoir()) continue;
 
-                if(srJ->isReservoir()) continue;
-
-                if(srj < r->getReactantsCount())
-                    pardJ[srI->getIndex() + srJ->getIndex() * model.getSpeciesCount()] -= jri * double(srJ->getStoichiometryAbs());
-                else
-                    pardJ[srI->getIndex() + srJ->getIndex() * model.getSpeciesCount()] += jri * double(srJ->getStoichiometryAbs());
-            }
-        }
+        if(srj < r->getReactantsCount())
+          pardJ[srI->getIndex() + srJ->getIndex() * model.getSpeciesCount()] -= jri * double(srJ->getStoichiometryAbs());
+        else
+          pardJ[srI->getIndex() + srJ->getIndex() * model.getSpeciesCount()] += jri * double(srJ->getStoichiometryAbs());
+      }
     }
+  }
 }
 
 /*
@@ -272,43 +253,43 @@ computeJacobian(
 void
 computeQ(
   pssalib::datamodel::detail::Model & model,
-  const unsigned int * paruPopulation,
+  const double * pardPopulation,
   double * pardQ
 )
 {
-    std::unique_ptr<double[]> rates = computeMassactioRates(model, paruPopulation);
+  std::unique_ptr<double[]> rates = computeMassactioRates(model, pardPopulation);
 
-    size_t lenQ = model.getSpeciesCount() * model.getSpeciesCount();
-    for(UINTEGER si = 0; si < lenQ; ++si)
-      pardQ[si] = 0.0;
+  size_t lenQ = model.getSpeciesCount() * model.getSpeciesCount();
+  for(UINTEGER si = 0; si < lenQ; ++si)
+    pardQ[si] = 0.0;
 
-    for(UINTEGER ri = 0; ri < model.getReactionsCount(); ++ri)
-    {
-        pssalib::datamodel::detail::Reaction * r = model.getReaction(ri);
+  for(UINTEGER ri = 0; ri < model.getReactionsCount(); ++ri)
+  {
+      pssalib::datamodel::detail::Reaction * r = model.getReaction(ri);
 
-        // Scale with compartment volume
-        rates[ri] *= model.getCompartmentVolume();
+      // Scale with compartment volume
+      rates[ri] *= model.getCompartmentVolume();
 
-        for(UINTEGER sri = 0; sri < r->getSpeciesReferencesCount(); ++sri)
-        {
-            const pssalib::datamodel::detail::SpeciesReference * srI = r->getSpeciesReferenceAt(sri);
+      for(UINTEGER sri = 0; sri < r->getSpeciesReferencesCount(); ++sri)
+      {
+          const pssalib::datamodel::detail::SpeciesReference * srI = r->getSpeciesReferenceAt(sri);
 
-            for(UINTEGER srj = 0; srj < r->getSpeciesReferencesCount(); ++srj)
-            {
-                const pssalib::datamodel::detail::SpeciesReference * srJ = r->getSpeciesReferenceAt(srj);
+          for(UINTEGER srj = 0; srj < r->getSpeciesReferencesCount(); ++srj)
+          {
+              const pssalib::datamodel::detail::SpeciesReference * srJ = r->getSpeciesReferenceAt(srj);
 
-                // fill the Lyapunov eq matrix Q
-                if(!srI->isReservoir()&&!srJ->isReservoir())
-                {
-                    double dq = rates[ri] * srI->getStoichiometryAbs() * srJ->getStoichiometryAbs();
-                    if((sri < r->getReactantsCount())^(srj < r->getReactantsCount()))
-                        pardQ[srI->getIndex() + srJ->getIndex() * model.getSpeciesCount()] -= dq;
-                    else
-                        pardQ[srI->getIndex() + srJ->getIndex() * model.getSpeciesCount()] += dq;
-                }
-            }
-        }
-    }
+              // fill the Lyapunov eq matrix Q
+              if(!srI->isReservoir()&&!srJ->isReservoir())
+              {
+                  double dq = rates[ri] * srI->getStoichiometryAbs() * srJ->getStoichiometryAbs();
+                  if((sri < r->getReactantsCount())^(srj < r->getReactantsCount()))
+                      pardQ[srI->getIndex() + srJ->getIndex() * model.getSpeciesCount()] -= dq;
+                  else
+                      pardQ[srI->getIndex() + srJ->getIndex() * model.getSpeciesCount()] += dq;
+              }
+          }
+      }
+  }
 }
 
 #endif

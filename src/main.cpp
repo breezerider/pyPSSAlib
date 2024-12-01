@@ -268,7 +268,7 @@ public:
   //! Compute mass-action ODEs for a given model
   py::array_t<double> compute_odes(enum tagTestCase testCase,
       py::array_t<double, py::array::c_style | py::array::forcecast> params,
-      py::array_t<unsigned int, py::array::c_style | py::array::forcecast> population)
+      py::array_t<double, py::array::c_style | py::array::forcecast> population)
   {
       // check params
       py::buffer_info buf_params = params.request();
@@ -296,7 +296,7 @@ public:
       model.normalize();
 
       // input population vector
-      unsigned int *ptr_population = static_cast<unsigned int *>(buf_population.ptr);
+      double *ptr_population = static_cast<double *>(buf_population.ptr);
       size_t num_population = buf_population.size;
 
       if(num_population != model.getSpeciesCount())
@@ -320,7 +320,7 @@ public:
   //! Compute Jacobian of mass-action ODEs for a given model
   py::array_t<double> compute_jacobian(enum tagTestCase testCase,
       py::array_t<double, py::array::c_style | py::array::forcecast> params,
-      py::array_t<unsigned int, py::array::c_style | py::array::forcecast> population)
+      py::array_t<double, py::array::c_style | py::array::forcecast> population)
   {
       // check params
       py::buffer_info buf_params = params.request();
@@ -348,7 +348,7 @@ public:
       model.normalize();
 
       // input population vector
-      unsigned int *ptr_population = static_cast<unsigned int *>(buf_population.ptr);
+      double *ptr_population = static_cast<double *>(buf_population.ptr);
       size_t num_population = buf_population.size;
 
       if(num_population != model.getSpeciesCount())
@@ -372,7 +372,7 @@ public:
   //! Compute Q-term for Lyapunov Equation based on mass-action ODEs for a given model
   py::array_t<double> compute_lyapunovQ(enum tagTestCase testCase,
       py::array_t<double, py::array::c_style | py::array::forcecast> params,
-      py::array_t<unsigned int, py::array::c_style | py::array::forcecast> population)
+      py::array_t<double, py::array::c_style | py::array::forcecast> population)
   {
       // check params
       py::buffer_info buf_params = params.request();
@@ -400,7 +400,7 @@ public:
       model.normalize();
 
       // input population vector
-      unsigned int *ptr_population = static_cast<unsigned int *>(buf_population.ptr);
+      double *ptr_population = static_cast<double *>(buf_population.ptr);
       size_t num_population = buf_population.size;
 
       if(num_population != model.getSpeciesCount())
