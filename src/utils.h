@@ -1,4 +1,5 @@
 #include <memory>
+#include <sstream>
 #include <iostream>
 
 #include <boost/config.hpp>
@@ -63,6 +64,59 @@ std::ostream & printReactionNetwork(const pssalib::datamodel::detail::Model & mo
     }
     os << "\n";
   }
+
+  return os;
+}
+
+/*
+ * Prints mass-action ODEs
+ */
+std::ostream & printODEs(const pssalib::datamodel::detail::Model & model, std::ostream & os)
+{
+  os << "\nODEs:\n\n";
+
+  std::unique_ptr<std::stringstream[]> ssODEs = boost::make_unique<std::stringstream[]>(model.getSpeciesCount());
+  for(UINTEGER si = 0; si < model.getSpeciesCount(); ++si) {
+    ssODEs[si] << model.getSpecies(si)->toString() << ": ";
+  }
+
+  for(UINTEGER ri = 0; ri < model.getReactionsCount(); ++ri)
+  {
+    const pssalib::datamodel::detail::Reaction * r = model.getReaction(ri);
+    std::stringstream ssRates;
+
+    ssRates << r->toString();
+
+    // compute mass-action rates
+    for(UINTEGER sri = 0; sri < r->getReactantsCount(); ++sri)
+    {
+      const pssalib::datamodel::detail::SpeciesReference * sr = r->getSpeciesReferenceAt(sri);
+
+      if(!sr->isReservoir() && (sri < r->getReactantsCount())) {
+        ssRates << " * ";
+        ssRates << "(" << sr->toString() << " / Vol)";
+        if(sr->getStoichiometryAbs() > 1)
+          ssRates << " ^ " << sr->getStoichiometryAbs();
+      }
+    }
+
+    for(UINTEGER sri = 0; sri < r->getSpeciesReferencesCount(); ++sri)
+    {
+      const pssalib::datamodel::detail::SpeciesReference * sr = r->getSpeciesReferenceAt(sri);
+
+      // fill the ODEs vector
+      if(!sr->isReservoir())
+      {
+        ssODEs[sr->getIndex()] << ((sri < r->getReactantsCount()) ? " - " : " + ");
+        if(sr->getStoichiometryAbs() > 1)
+          ssODEs[sr->getIndex()] << sr->getStoichiometryAbs() << " * ";
+        ssODEs[sr->getIndex()] << "(" << ssRates.str() << ")";
+      }
+    }
+  }
+
+  for(UINTEGER si = 0; si < model.getSpeciesCount(); ++si)
+    os << ssODEs[si].rdbuf() << "\n";
 
   return os;
 }

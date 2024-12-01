@@ -423,7 +423,7 @@ public:
 
   //! Print reaction network for a given model
   std::string print_test_case(enum tagTestCase testCase,
-      py::array_t<double, py::array::c_style | py::array::forcecast> params)
+      py::array_t<double, py::array::c_style | py::array::forcecast> params, bool odes = false)
   {
       // check params
       py::buffer_info buf_params = params.request();
@@ -447,6 +447,8 @@ public:
       // print reaction network
       std::stringstream ssTemp;
       printReactionNetwork(model, ssTemp);
+      if(odes)
+        printODEs(model, ssTemp);
 
       return ssTemp.str();
   }
@@ -649,10 +651,13 @@ PYBIND11_MODULE(pypssalib, m) {
         :type test_case: Testcase
         :param params: model parameters for the test case
         :type params: ndarray[float]
+        :param odes: if True, prints a system of ordinary differential equations
+                     for temporal evolution of species concentrations in the model
+        :type params: boolean
         :return: string containing reaction network for a given model
         :rtype: str
     )pbdoc",
-        py::arg("test_case"), py::arg("params"))
+        py::arg("test_case"), py::arg("params"), py::arg("odes") = false)
       .def(py::pickle(
         [](const pSSAlibWrapper &instance) { // __getstate__
             /* Return a tuple that fully encodes the state of the object */
